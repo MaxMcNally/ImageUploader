@@ -1,0 +1,16 @@
+extends layout.pug
+block append scripts
+    script(src='/js/addToAny.js')
+block content
+    .p-3
+        if image.title
+            h3.text-center #{image.title}
+        img(src="/img/" + image.id, class="img-fluid")
+        p Uploaded by 
+            a(href="/user/" + image.username) #{image.username}
+            span  on #{image.created_at}
+        if (session && session.isLoggedIn)
+            .pt-3
+                include includes/commentForm.pug
+            if comments             
+                include includes/comments.pug

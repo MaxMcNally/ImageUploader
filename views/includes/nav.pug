@@ -1,0 +1,22 @@
+nav.navbar.navbar-expand-lg.navbar-light.bg-light
+  .container
+    a.navbar-brand(href='/') Image Uploader
+    button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target="#navbarContent", aria-controls='navbarContent', aria-expanded='false', aria-label='Toggle navigation')
+      span.navbar-toggler-icon
+    
+    .navbar-collapse.collapse(id='navbarContent')
+      ul.navbar-nav.me-auto
+        li.nav-item
+          a.nav-link(href='/') Home      
+        
+      if (session && session.isLoggedIn)
+        ul.navbar-nav.ms-auto
+          li.nav-item.dropdown
+            a.nav-link.dropdown-toggle(id='navbarDropdownMenuLink', data-bs-toggle='dropdown', aria-haspopup='true', aria-expanded='false') #{session.username}
+            .dropdown-menu(aria-labelledby='navbarDropdownMenuLink')
+              a.dropdown-item(href='/settings') Settings
+              a.dropdown-item(href='/logout') Logout
+            
+      else
+        a.nav-link(href='/login') Login
+        

@@ -1,0 +1,42 @@
+extends layout.pug
+block append scripts
+    <script src="/js/clickAvatar.js"></script>
+block content
+    h1 User Settings
+    form(action="/settings", method="post", enctype="multipart/form-data" id="userSettingsForm") 
+        .row
+            .col-md-6
+                <div class="mb-3">
+                    <label for="username" class="form-label">User Name</label>
+                    <input type="text" class="form-control" id="username" value="#{settings.username}" name="username">
+                </div>
+        .row
+            .col-md-6
+            if settings.avatar
+                <div class="mb-3 ">
+                    <label for="userimage" class="form-label">User Image</label>
+                    <img src="/avatar/#{settings.user_id}" class="img-thumbnail avatar-img">
+                </div> 
+                <div class="mb-3 d-none avatar-image-upload">
+                    <label for="userimage" class="form-label">User Image</label>
+                    <input type="file" class="form-control" id="userimage" value="#{settings.username}" name="avatar">
+                </div>  
+            else     
+                   
+        .row
+            .col-md-6
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" placeholder="name@example.com" value="#{settings.email}" name="email">
+                </div>
+        .row
+            .col-md-6
+                <div class="form-check mb-3">
+                    - var checked = settings.account_public === 0 ? false : true
+                    <label class="form-check-label" for="accountPublic">Account Public
+                    </label>
+                     input.form-check-input(checked=checked type="checkbox" name="account_public" id="accountPublic")
+                </div>
+        .row
+            .col-md-6
+                <input type="submit" value="Update Settings" class="btn btn-primary">

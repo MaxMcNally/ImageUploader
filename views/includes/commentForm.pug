@@ -1,0 +1,8 @@
+form(action="/addComment", method="post")
+    .mb-3.input-group
+        input#comment.form-control(type="text",autocomplete="off", placeholder="Add a Comment", name="comment")
+        - var userID = session.userID
+        input(type="hidden", name="userID", value=userID)
+        - var imageID = image.id
+        input(type="hidden", name="imageID", value=imageID)
+        input(type="submit" class="btn btn-primary" value="Post")

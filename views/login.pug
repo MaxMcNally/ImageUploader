@@ -1,0 +1,30 @@
+extends layout.pug
+
+block content 
+    section.vh-80
+        if message
+            .alert.alert-success(role="alert") #{message}
+        .container-fluid
+            .row
+                .col-sm-6.text-black
+                    .px-5.ms-xl-4
+                    i.fas.fa-crow.fa-2x.me-3.pt-5.mt-xl-4(style='color: #709085;')
+                    span.h1.fw-bold.mb-0 Logo
+                    .d-flex.align-items-center.h-custom-2.px-5.ms-xl-4.mt-5.pt-5.pt-xl-0.mt-xl-n5
+                    form(action="/login" method="post")
+                        h3.fw-normal.mb-3.pb-3(style='letter-spacing: 1px;') Log in
+                        .form-outline.mb-4
+                        input.form-control.form-control-lg(type='text' name="username")
+                        label.form-label(for='username') Username
+                        .form-outline.mb-4
+                        input.form-control.form-control-lg(type='password' name="password")
+                        label.form-label(for='password') Password
+                        .pt-1.mb-4
+                        input.btn.btn-info.btn-lg.btn-block(type='submit' value="Login") 
+                        p.small.mb-5.pb-lg-2
+                        a.text-muted(href='#!') Forgot password?
+                        p
+                        | Don&apos;t have an account? 
+                        a.link-info(href='/register') Register here
+                .col-sm-6.px-0.d-none.d-sm-block
+                    img.w-100.vh-100(src='https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/img3.webp' alt='Login image' style='object-fit: cover; object-position: left;')

@@ -1,0 +1,10 @@
+each comment in comments
+    .p-3.comment 
+        strong "#{comment.comment}"
+        div.comment-author.p-1 
+            div 
+                img.avatar-img(src="/avatar/" + comment.user_id)
+            .p-1 Posted by 
+            a.p-1(href="/user/" + comment.username) #{comment.username}
+            .p-1 at #{comment.created_at}
+            
