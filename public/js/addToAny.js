@@ -4,7 +4,7 @@ a2a_config.overlays.push({
     services: ['pinterest', 'facebook', 'twitter', 'snapchat'],
     size: '50',
     style: 'horizontal',
-    position: 'top center',
+    position: 'bottom center',
     target: "img.shareable"
 
 });

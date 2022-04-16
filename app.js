@@ -10,6 +10,7 @@ const sessionDB = new sqlite("./db/sessions.db");
 const cookieParser = require('cookie-parser');
 require('dotenv').config()
 app.set('view engine', 'pug')
+const pugFilters = require("./pugFilters") 
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -43,11 +44,11 @@ app.use(function(req,res,next){
 app.use(function(req,res,next){
     const _render = res.render;
     res.render = function( view, options, fn ) {
-        console.log("Options")
-        console.log(options)
+
         options = options || {}
-        console.log(options)
-        let extendedOptions = Object.assign({}, options, {session: res.locals.session, message: options.message || req.flash("message"), error: options.error || req.flash("error")});
+ 
+        let extendedOptions = Object.assign({}, options, {filters:pugFilters} ,{session: res.locals.session, message: options.message || req.flash("message"), error: options.error || req.flash("error")});
+        console.log(extendedOptions)
         _render.call( this, view, extendedOptions, fn );
     }
     next();

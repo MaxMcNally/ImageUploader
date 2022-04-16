@@ -1,5 +1,4 @@
 const db = require("./../db")
-
 class Comment{
     addComment(options){
         const {imageID,userID,comment} = options

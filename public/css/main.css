@@ -11,11 +11,57 @@
     align-items: center;
   }
 
+.toggle {
+  cursor:pointer;
+  display: contents;
+}  
+#addimageForm {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .5s ease;
+}
+#addimageForm.show {
+  max-height: 300px;
+}
+.icon-large {
+  font-size:3rem;
+}
+
+.like {
+  color:rgb(229, 124, 136);
+  z-index:9999;
+  cursor:pointer;
+  opacity:0;
+  transition: opacity .4s ease-in-out;
+  transition: font-size .2s ease-in-out;
+}
+.like:hover {
+  font-size:3.2rem;
+  color:rgb(189, 8, 28);
+  font-weight: 600;
+}
+
+.likeable:hover .like {
+  opacity:1;
+  
+}
+.liked {
+  color:rgb(189, 8, 28);
+  font-weight: 600;
+  opacity:1;
+}
+
 .avatar-img {
   display:block;
   max-width:100px;
   border-radius:50px;
   cursor:pointer;
+}  
+.avatar-img.large {
+  display:block;
+  max-width:250px;
+  border-radius:125px;
+  cursor: default;
 }  
 
 .comment {

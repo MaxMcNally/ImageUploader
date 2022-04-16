@@ -58,14 +58,14 @@ class UserController{
         const i = new Image()
         const u = new User()
         const user = u.getUserByName(req.params.username)
-        const username = user.username
         console.log(user)
+        const username = user.username
         if(user.account_public === 0){
-            return res.render("user", {account_private: true, username})
+            return res.render("user", {account_private: true, user})
         }
         if(username) {
             const images = i.getImagesByUser(username)
-            return res.render("user", {images, username})
+            return res.render("user", {images,user})
         }
         else {
             return res.send(404)

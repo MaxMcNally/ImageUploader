@@ -1,11 +1,10 @@
 const md5 = require("md5")
 const db = require("./../db")
 const { v4: uuidv4 } = require('uuid');
-
-const { Integer } = require('better-sqlite3');
-
 require('dotenv').config()
 const {Storage} = require('@google-cloud/storage');
+const dateFormat = require("date-format")
+
 const storage = new Storage(
     {
         keyFilename: "./" + process.env.GOOGLE_APPLICATION_CREDENTIALS,
@@ -42,12 +41,10 @@ class User{
         {
             throw new Error("User already exists. Please pick a different user name");
         }
-        console.log(users.get(username))
         const user_stmt = db.prepare("INSERT INTO users (username, password, email) VALUES (?, ?, ?)")
         const results = user_stmt.run(username, this.hash(password), email)
 
         const user = users.get(username)
-        console.log(user)
         const settings_stmt = db.prepare("INSERT INTO user_settings (user_id, email, account_public) VALUES (?, ?, ?)")
         const settings = settings_stmt.run(user.id, email, 1)
         return user
@@ -64,7 +61,6 @@ class User{
 
     async updateSettings(options){
         const {username, email, account_public, userID, avatar} = options
-        console.log("Update settings options",options)
         db.prepare("UPDATE user_settings SET email=?, account_public=? WHERE user_id=?").run(email, account_public, userID.toString())
         db.prepare("UPDATE users SET email=?, username=? WHERE id=?").run(email,username,userID.toString())
         if(avatar){
@@ -81,13 +77,14 @@ class User{
         await storage.bucket(bucketName).file(fileName).save(imageBuffer,{
             contentType : "image/webp"
         })
-        console.log("Avatar saved")
-        console.log(fileName)
         return fileName
     }
     
     getUserByName(username){
-        return db.prepare("SELECT * FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE username=?").get(username)
+        const user = db.prepare("SELECT users.id,username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE username=?").get(username)
+        console.log(user)
+        user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
+        return user
     }
     
     resetPasswordEmail(email){
@@ -98,7 +95,7 @@ class User{
 
     }
     
-    _validateEmail(email){
+    validateEmail(email){
 
     }
 

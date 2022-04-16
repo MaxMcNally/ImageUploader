@@ -2,9 +2,7 @@ node_modules
 Dockerfile
 docker-compose.yaml
 .env
-.local.env
-.staging.env
-.qa.env
+.*.env
 /uploads
 /compressed-images
 /db

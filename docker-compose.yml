@@ -1,0 +1,27 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:3000"
+    volumes:
+      - image-uploader-db:/db
+    env_file:
+      - .docker.env
+    links:
+      - data  
+    depends_on:
+      - data
+  data:
+    image: mysql:8.0.22
+    platform: linux/x86_64
+    container_name: mysqldb
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - image-uploader-db:/db/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_DATABASE=image_uploader
+volumes:
+  image-uploader-db:
