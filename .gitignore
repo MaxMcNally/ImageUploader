@@ -4,7 +4,9 @@ docker-compose.yaml
 .*.env
 /uploads
 /compressed-images
-/db
+/db/*
+!/db/README.MD
+
 .dockerignore
 api_key.json
 db_schema.txt

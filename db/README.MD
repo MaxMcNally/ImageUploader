@@ -1,0 +1,1 @@
+This is the file for the DB. Git doens't allow empty directory commits
