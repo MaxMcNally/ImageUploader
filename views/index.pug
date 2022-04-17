@@ -6,7 +6,7 @@ block content
     if (session && session.isLoggedIn)
         h1.text-center Upload an Image
         .row.d-flex.justify-content-center
-            <i class="fa-solid fa-circle-plus icon-large translate-middle toggle" data-target="#addImageForm" data-startclass="fa-circle-plus" data-toggleclass="fa-circle-minus"></i>
+            <i class="fa-solid fa-circle-plus translate-middle icon-large toggle upload-form-toggle" data-target="#addImageForm" data-startclass="fa-circle-plus" data-toggleclass="fa-circle-minus"></i>
         form(action="/addImage" method="POST" enctype="multipart/form-data" class="hidden-form" id="addimageForm")
             div(class="mb-3")
                 label(class="form-label") Title: 

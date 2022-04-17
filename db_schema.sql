@@ -29,3 +29,14 @@ CREATE TABLE comments (
     user_id INTEGER REFERENCES users(id), 
     image_id INTEGER REFERENCES images(id)
 );
+
+CREATE TABLE messages (
+    id INTEGER PRIMARY KEY,
+    sender INTEGER REFERENCES users(id),
+    receiver INTEGER REFERENCES users(id),
+    message TEXT,
+    sent_on DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    unread INTEGER DEFAULT 1,
+    deleted_by_sender INTEGER DEFAULT 0,
+    deleted_by_receiver INTEGER DEFAULT 0
+);

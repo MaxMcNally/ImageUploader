@@ -2,16 +2,29 @@ extends layout.pug
 block append scripts
     script(src='/js/addToAny.js')
     script(src='/js/like.js')
+    script(src='/js/toggle.js')
 block content
     .row.border.m-3
         if user.avatar
-            .col-md-4.d-flex.justify-content-center
+            .col-md-4
                 img.m-3.img-thumbnail.avatar-img.large(src="/avatar/" + user.id)
         .col-md-8.d-flex.justify-content-center.flex-column
             h3.pt-3.pb-1.display-4 #{user.username}
             p member since #{user.created_at}
-            button.btn.btn-outline-primary.btn-sm.col-md-4.mb-2 Follow 
-            button.btn.btn-outline-primary.btn-sm.col-md-4.mb-4 Message
+            if (session.userID !== user.id)
+                button.btn.btn-outline-primary.btn-sm.col-md-4.mb-2 Follow 
+                button.btn.btn-outline-primary.btn-sm.col-md-4.mb-4.toggle(data-target="#messageForm") Message
+                form(action="/message" method="post" id="messageForm")
+                    div(class="mb-3")
+                        label(class="form-label") Messaging #{user.username}: 
+                        input(class="form-control" name="message" type="text" autocomplete="off")
+                        input(type="hidden" value=user.id name="to")
+                        input(type="hidden" value=user.username name="username")
+                        input(type="hidden" value=session.userID name="from")
+                    div(class="mb-3")    
+                        input(class="form-control btn btn-primary show-spinner mb-4" type="submit" value="Send")
+                        button.btn.btn-outline-primary.btn-sm.toggle(data-target="#messageForm") Cancel
+
 
     .row
         h3 Recent Images by #{user.username}

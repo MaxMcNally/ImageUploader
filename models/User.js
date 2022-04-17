@@ -79,14 +79,19 @@ class User{
         })
         return fileName
     }
-    
+
     getUserByName(username){
         const user = db.prepare("SELECT users.id,username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE username=?").get(username)
         console.log(user)
         user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
         return user
     }
-    
+    getUserByID(userID){
+        const user = db.prepare("SELECT username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE users.id=?").get(userID)
+        console.log(user)
+        user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
+        return user
+    }
     resetPasswordEmail(email){
 
     }

@@ -1,0 +1,15 @@
+extends layout.pug
+block content
+    
+    if messages
+        h3.ps-3.display-5 Messages
+        each m of messages
+            .border
+                p.p-3.pb-1 #{m.message}
+                p.ps-3 sent by 
+                    a(href="/users/" + m.sender) #{m.sender} 
+                        
+                    on #{m.sent_on}
+            form(action="/delete/message", method="post" class="d-flex")
+                input(type="hidden" value=m.id name="messageID")
+                input(type="submit" value="Delete" class="btn btn-sm btn-primary m-3 ms-auto")    

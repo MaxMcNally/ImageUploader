@@ -9,19 +9,28 @@
     opacity: .5;
     justify-content: center;
     align-items: center;
-  }
-
+}
+.upload-form-toggle {
+  display:contents;
+}
 .toggle {
   cursor:pointer;
-  display: contents;
 }  
+
 #addimageForm {
   max-height: 0;
   overflow: hidden;
   transition: max-height .5s ease;
 }
+
 #addimageForm.show {
   max-height: 300px;
+}
+.icon-sm {
+  font-size:1rem;
+}
+.icon-medium {
+  font-size:1.5rem;
 }
 .icon-large {
   font-size:3rem;
@@ -78,4 +87,31 @@
   display: flex;
   justify-content: start;
   align-items: center;
+}
+
+/*
+  Message Form
+*/
+
+#messageForm {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .5s ease;
+}
+
+#messageForm.show {
+  max-height: 300px;
+}
+
+.message-indicator {
+  color: red;
+  background: white;
+  border-radius: 50%;
+  line-height: 10px;
+  font-family:'Courier New', Courier, monospace;
+  font-weight:bold;
+  padding: 3px;
+  border: 1px solid #030303;
+  bottom:5px;
+  right:0px;
 }
