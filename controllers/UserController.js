@@ -1,6 +1,6 @@
 const Image = require("../models/Image")
 const User = require("../models/User")
-
+const Message = require("../models/Message")
 class UserController{
     login(req,res){
         const options = {
@@ -120,6 +120,74 @@ class UserController{
         const message = "Your settings have been successfully updated"
         res.render("settings", {message:message, settings: newSettings})
     }
+    sendMessage(req,res){
+        const {from,to, message, username} = req.body
+        console.log("Sending Message to")
+        console.log(req.body)
+        console.log(req.messageSocketListeners)
+       
+        if(from && to && message && username){
+            const m = new Message()
+            const result = m.sendMessage({
+                from,
+                to,
+                message
+            })
+            if(result.changes === 1){
+                req.flash("message", `Your message to ${req.body.username} was succesfully sent`)
+                if(req.messageSocketListeners.get(parseInt(to))){
+                    //user is online so we notify them
+                    const ws = req.messageSocketListeners.get(parseInt(to))
+                    const sender = new User().getUserByID(from)
+                    ws.send(JSON.stringify({
+                        type: "message",
+                        message: "You have a new message from " + sender.username,
+                        unreadMessages: m.getUnreadMessages(parseInt(to)).count
+                    }))
+                }
+                res.redirect("/users/" + req.body.username)
+            }
+            else {
+                req.flash("error", `Your message was to ${req.body.username} was not sent. Please try again later`)
+                res.redirect("/users/" + req.body.username)
+            }
+        }
+        else {
+            res.status(500).send("Incorrect params")
+        }
+
+    }
+    getMessages(req,res){
+        const m = new Message()
+        const messages = m.getMessages(req.session.userid)
+        m.markMessagesAsRead(req.session.userid)
+        if(messages.length > 0) {
+            return res.render("messages", {messages})
+        }
+        else {
+            return res.render("messages", {message: "You have no messages. Except for this one."})
+        }
+    }
+
+    deleteMessage(req,res){
+        console.log("Deleting message", req.body,req.session.userid)
+        const message = new Message().getMessageByID(req.body.messageID)
+        const userID = parseInt(req.session.userid)
+        console.log(message)
+        const deleter = message.sender === userID ? "sender" : message.receiver === userID ? "receiver" : null
+        console.log(deleter)
+        if(!deleter){
+            return res.status(401).send("Not authorized to delete this message")
+        }
+        new Message().deleteMessage({
+            messageID : req.body.messageID,
+            deleter
+        })
+        const messages = new Message().getMessages(req.session.userid)
+        req.flash("message","Succesfully deleted message")
+        res.redirect("/messages")
+    }
+    
 }
 
 module.exports = new UserController()

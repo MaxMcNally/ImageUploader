@@ -2,15 +2,20 @@ extends layout.pug
 block append scripts
     script(src='/js/addToAny.js')
 block content
-    .p-3
+
         if image.title
-            h3.text-center #{image.title}
-        img(src="/img/" + image.id, class="img-fluid")
-        p Uploaded by 
-            a(href="/user/" + image.username) #{image.username}
-            span  on #{image.created_at}
+            h3.p-3 #{image.title}
+        .d-flex.justify-content-center
+            
+            img(src="/img/" + image.id, class="img-fluid",style="max-height: 80vh;")
+        .d-flex.justify-content-center
+            p Uploaded by 
+                a(href="/user/" + image.username) #{image.username}
+                span  on #{image.created_at}
+        
         if (session && session.isLoggedIn)
-            .pt-3
-                include includes/commentForm.pug
-            if comments             
+                .pt-3
+                    include includes/commentForm.pug
+        if comments    
+                h3.display-5 Comments    
                 include includes/comments.pug

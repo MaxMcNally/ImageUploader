@@ -7,7 +7,7 @@ class ImageController{
         if(req.params.imageID && isNaN(parseInt(req.params.imageID)) === false){
             const i = new Image()
             const stream = await i.retrieve(req.params.imageID)
-            res.set('Cache-control', 'public, max-age=300')
+            res.set('Cache-control', 'public, max-age=7200')
             res.writeHead(200, {'Content-Type': 'image/webp' });
             stream.on('data', function (data) {
                 res.write(data);
