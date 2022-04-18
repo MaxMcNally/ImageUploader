@@ -23,37 +23,29 @@ class User{
         return md5(password + this.salt)
     }
     
-    login(options){    
+    async login(options){    
         const {username, password} = options
-        let stmt = db.prepare("SELECT username, id FROM users WHERE username=? AND password=?")
-        let user = stmt.get(username, this.hash(password))
-        if(!user)
-        {
-            throw new Error("User doesn't exist");
-        }
-        return user
+        return await db.query("SELECT username, id FROM users WHERE (username=$1 AND password=$2)",[username, this.hash(password)])
     }
     
-    register(options){
+    async register(options){
         const {username, email, password} = options
-        let users = db.prepare("SELECT * FROM users WHERE username=?")
-        if(users.get(username))
+        let usersQuery = await db.query("SELECT * FROM users WHERE username=$1",[username])
+        if(usersQuery.rows.length > 1)
         {
             throw new Error("User already exists. Please pick a different user name");
         }
-        const user_stmt = db.prepare("INSERT INTO users (username, password, email) VALUES (?, ?, ?)")
-        const results = user_stmt.run(username, this.hash(password), email)
-
-        const user = users.get(username)
-        const settings_stmt = db.prepare("INSERT INTO user_settings (user_id, email, account_public) VALUES (?, ?, ?)")
-        const settings = settings_stmt.run(user.id, email, 1)
-        return user
+        const user = await db.query("INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING id", [username, this.hash(password), email])
+        console.log("Registration worked")
+        const userID = user.rows[0].id
+        await db.query("INSERT INTO user_settings (user_id, email, account_public) VALUES ($1, $2, $3)",[userID, email, 'true'])
+        console.log("User settings worked")
+        return userID
     }
     
-    getSettings(userID){
+    async getSettings(userID){
         console.log("Getting setting for user id ", userID)
-        let stmt = db.prepare("SELECT * FROM user_settings WHERE user_id=?")
-        return stmt.get(userID.toString())
+        return await db.query("SELECT * FROM user_settings WHERE user_id=$1",[userID])
     }
     async retrieveAvatar(url) {
         return await storage.bucket(bucketName).file(url).createReadStream()
@@ -61,13 +53,13 @@ class User{
 
     async updateSettings(options){
         const {username, email, account_public, userID, avatar} = options
-        db.prepare("UPDATE user_settings SET email=?, account_public=? WHERE user_id=?").run(email, account_public, userID.toString())
-        db.prepare("UPDATE users SET email=?, username=? WHERE id=?").run(email,username,userID.toString())
+        await db.query("UPDATE user_settings SET email=$1, account_public=$2 WHERE user_id=$3", [email, account_public, userID.toString()])
+        await db.query("UPDATE users SET email=$1, username=$2 WHERE id=$3",[email,username,userID.toString()])
         if(avatar){
             const avatarFile = await this.saveAvatar(avatar)
-            db.prepare("UPDATE user_settings SET avatar=? WHERE user_id=?").run(avatarFile,userID.toString())
+            await db.query("UPDATE user_settings SET avatar=$1 WHERE user_id=$2",[avatarFile,userID.toString()])
         }
-        const user = db.prepare("SELECT username FROM users WHERE id=?").get(userID.toString())
+        const user = await db.query("SELECT username FROM users WHERE id=$1",[userID.toString()])
         return Object.assign({}, this.getSettings(userID), {username: user.username})
     }
 
@@ -80,26 +72,28 @@ class User{
         return fileName
     }
 
-    getUserByName(username){
-        const user = db.prepare("SELECT users.id,username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE username=?").get(username)
+    async getUserByName(username){
+        const userQuery = await db.query("SELECT users.id,username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE username=$1",[username])
+        const user = userQuery.rows[0]
         console.log(user)
         user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
         return user
     }
-    getUserByID(userID){
-        const user = db.prepare("SELECT username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE users.id=?").get(userID)
-        console.log(user)
+    async getUserByID(userID){
+        const userQuery = await db.query("SELECT username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE users.id=$1",[userID])
+        const user = userQuery.rows[0] 
         user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
         return user
     }
+    //TODO
     resetPasswordEmail(email){
-
+        
     }
-
+    //TODO
     confirmationEmail(email){
 
     }
-    
+    //TODO
     validateEmail(email){
 
     }

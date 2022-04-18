@@ -16,6 +16,8 @@ block content
         if (session && session.isLoggedIn)
                 .pt-3
                     include includes/commentForm.pug
-        if comments    
+        if (comments.length > 0 )  
                 h3.display-5 Comments    
                 include includes/comments.pug
+        else 
+            h3.display-5 No comments yet          

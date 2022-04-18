@@ -2,88 +2,92 @@ const Image = require("../models/Image")
 const User = require("../models/User")
 const Message = require("../models/Message")
 class UserController{
-    login(req,res){
+    async login(req,res){
         const options = {
             username: req.body.username,
             password: req.body.password
         }
-        try {
-            const u = new User()
-            const user = u.login(options)
-            if(user){
-                console.log(user)
+
+            const u = await new User()
+            const results = await u.login(options)
+
+            if(results.rows){
+                const user = results.rows[0]
                 req.flash('message', 'Login Successful');
                 req.session.username = user.username
                 req.session.isLoggedIn = true
                 req.session.userid = user.id
                 return res.redirect("/")
             }
-        }
-        catch(e){
-            const response = {
-                error: e.message,
-                username: req.body.username
+            else {
+                const response = {
+                    error: e.message,
+                    username: req.body.username
+                }
+                return res.render("login", response)
             }
-            return res.render("login", response)
         }
-        return res.render("/login", {error:'Login Unsuccessful'})
-    }
-    
+       
+
     logout(req,res){
         req.session.destroy(()=>{
             res.redirect('/');
         })
     }
 
-    register(req,res){
+    async register(req,res){
         const options = {
             username: req.body.username,
             email: req.body.email,
             password: req.body.password
         }
         const u = new User()
-        try 
+        const results = await u.register(options)
+        if(results)
         {
-            const results = u.register(options)
+            req.flash("message", "Your registration was successful. Please login to continue.")
+            return res.redirect("/login")
         }
-        catch (e)
+        else
         {
-            return res.render("register", {error: e.message})
+            return res.render("register", {error: "Registration was not succesful"})
         }
-        req.flash("message", "Your registration was successful. Please login to continue.")
-        res.redirect("/login")
+        
     }
     
-    getUserPage(req,res){
+    async getUserPage(req,res){
         const i = new Image()
         const u = new User()
-        const user = u.getUserByName(req.params.username)
+        const user = await u.getUserByName(req.params.username)
         console.log(user)
         const username = user.username
         if(user.account_public === 0){
             return res.render("user", {account_private: true, user})
         }
         if(username) {
-            const images = i.getImagesByUser(username)
-            return res.render("user", {images,user})
+            const images = await i.getImagesByUser(username)
+            console.log("Images")
+            console.log(images.rows)
+            return res.render("user", {images: images.rows,user})
         }
         else {
             return res.send(404)
         }
     }
 
-    getSettings(req, res){
+    async getSettings(req, res){
         const userID = req.session.userid
         if(!userID){
             return res.redirect("/login")
         }
-        const settings = new User().getSettings(userID)
-        settings.username = req.session.username
+        const settings = await new User().getSettings(userID)
+        const userSettings = settings.rows[0]
+        userSettings.username = req.session.username
         res.render("settings",{settings})
     }
     async getAvatar(req,res){
         const u = new User()
-        const settings = u.getSettings(req.params.userID)
+        const settings = await u.getSettings(req.params.userID)
 
         if(settings.avatar){
             const i = new User()
@@ -120,7 +124,7 @@ class UserController{
         const message = "Your settings have been successfully updated"
         res.render("settings", {message:message, settings: newSettings})
     }
-    sendMessage(req,res){
+    async sendMessage(req,res){
         const {from,to, message, username} = req.body
         console.log("Sending Message to")
         console.log(req.body)
@@ -128,7 +132,7 @@ class UserController{
        
         if(from && to && message && username){
             const m = new Message()
-            const result = m.sendMessage({
+            const result = await m.sendMessage({
                 from,
                 to,
                 message
@@ -138,7 +142,7 @@ class UserController{
                 if(req.messageSocketListeners.get(parseInt(to))){
                     //user is online so we notify them
                     const ws = req.messageSocketListeners.get(parseInt(to))
-                    const sender = new User().getUserByID(from)
+                    const sender = await new User().getUserByID(from)
                     ws.send(JSON.stringify({
                         type: "message",
                         message: "You have a new message from " + sender.username,
@@ -157,10 +161,10 @@ class UserController{
         }
 
     }
-    getMessages(req,res){
+    async getMessages(req,res){
         const m = new Message()
-        const messages = m.getMessages(req.session.userid)
-        m.markMessagesAsRead(req.session.userid)
+        const messages = await m.getMessages(req.session.userid)
+        await m.markMessagesAsRead(req.session.userid)
         if(messages.length > 0) {
             return res.render("messages", {messages})
         }
@@ -169,9 +173,9 @@ class UserController{
         }
     }
 
-    deleteMessage(req,res){
+    async deleteMessage(req,res){
         console.log("Deleting message", req.body,req.session.userid)
-        const message = new Message().getMessageByID(req.body.messageID)
+        const message = await new Message().getMessageByID(req.body.messageID)
         const userID = parseInt(req.session.userid)
         console.log(message)
         const deleter = message.sender === userID ? "sender" : message.receiver === userID ? "receiver" : null
@@ -179,11 +183,10 @@ class UserController{
         if(!deleter){
             return res.status(401).send("Not authorized to delete this message")
         }
-        new Message().deleteMessage({
+        await new Message().deleteMessage({
             messageID : req.body.messageID,
             deleter
         })
-        const messages = new Message().getMessages(req.session.userid)
         req.flash("message","Succesfully deleted message")
         res.redirect("/messages")
     }

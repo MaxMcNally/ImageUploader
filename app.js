@@ -35,20 +35,22 @@ const sessionParser = session(
 app.use(sessionParser);
 app.use(flash({ locals: 'flash' }));
 app.use(cookieParser());
-app.use(function(req,res,next){
+
+app.use(async function(req,res,next){
     if(req.session.username){
         res.locals.session = {
             username: req.session.username,
             isLoggedIn : req.session.isLoggedIn,
             userID : req.session.userid
         }
-        const messageCount = new Message().getUnreadMessages(req.session.userid).count
+        const messageCount = await new Message().getUnreadMessages(req.session.userid).count
         res.locals.notifications = {
             messageCount
         }
     }
     next(null, req, res);
 });
+
 app.use(function(req,res,next){
     const _render = res.render;
     res.render = function( view, options, fn ) {
@@ -140,7 +142,6 @@ app.post("/addImage", auth, upload.single('image'), ImageController.uploadImage)
 
 //comments
 app.post("/addComment", auth,CommentController.addComment)
-
 
 //messages
 app.post("/message", auth, function(req,res){

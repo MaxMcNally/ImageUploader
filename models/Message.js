@@ -1,34 +1,31 @@
 const db = require("./../db")
 class Message{
-    sendMessage(options){
+    async sendMessage(options){
         const {from,to,message} = options
-        const result = db.prepare("INSERT INTO messages (sender, receiver, message) VALUES(?, ?, ?)").run(from, to, message)
-        return result
+        return await db.query("INSERT INTO messages (sender, receiver, message) VALUES($1, $2, $3)", [from, to, message])
     }
-    getMessages(userid){
-        const messages = db.prepare("SELECT messages.id, message, sent_on, unread, users.username AS sender, user_settings.avatar FROM messages JOIN user_settings ON messages.sender=user_settings.user_id JOIN users ON messages.sender=users.id WHERE receiver=? AND deleted_by_receiver=0").all(userid.toString())
-        return messages
+    async  getMessages(userID){
+        return await db.query("SELECT messages.id, message, sent_on, unread, users.username AS sender, user_settings.avatar FROM messages JOIN user_settings ON messages.sender=user_settings.user_id JOIN users ON messages.sender=users.id WHERE (receiver=$1 AND deleted_by_receiver=false)", [userID])
     }
-    getUnreadMessages(userid){
-        return db.prepare("SELECT COUNT(*) AS count FROM messages WHERE receiver=? AND deleted_by_receiver=0 AND unread=1").get(userid.toString())
+    async getUnreadMessages(userID){
+        return await db.query("SELECT COUNT(*) AS count FROM messages WHERE (receiver=$1 AND deleted_by_receiver=false AND unread=true)", [userID])
     }
-    getMessageByID(messageID){
-        return db.prepare("SELECT * FROM messages WHERE id=?").get(messageID)
+    async getMessageByID(messageID){
+        return await db.query("SELECT * FROM messages WHERE id=$1", [messageID])
     }
-    deleteMessage(options){
+    async deleteMessage(options){
         const {deleter, messageID} = options
         let deleteQuery = ""
         if(deleter === "sender"){
-            deleteQuery = "UPDATE messages SET deleted_by_sender=1 WHERE id=?"
+            deleteQuery = "UPDATE messages SET deleted_by_sender=true WHERE id=$1"
         }
         else {
-            deleteQuery = "UPDATE messages SET deleted_by_receiver=1 WHERE id=?"
+            deleteQuery = "UPDATE messages SET deleted_by_receiver=true WHERE id=$1"
         }
-        const message = db.prepare(deleteQuery).run(messageID)
-        return message
+        return await db.query(deleteQuery, [messageID])
     }
-    markMessagesAsRead(userID){
-        return db.prepare("UPDATE messages SET unread=0 WHERE receiver=?").run(userID)
+    async markMessagesAsRead(userID){
+        return await db.query("UPDATE messages SET unread=false WHERE receiver=$1", [userID])
     }
 }
 
