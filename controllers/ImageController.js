@@ -55,8 +55,6 @@ class ImageController{
                 filePath: "./uploads/" + req.file.filename,
                 title
             })
-            console.log("Uploaded file info")
-            console.log(fileInfo)
             if(fileInfo.rows.length > 0){
                 return res.render('success',
                 {

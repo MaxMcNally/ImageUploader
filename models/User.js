@@ -36,15 +36,12 @@ class User{
             throw new Error("User already exists. Please pick a different user name");
         }
         const user = await db.query("INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING id", [username, this.hash(password), email])
-        console.log("Registration worked")
         const userID = user.rows[0].id
         await db.query("INSERT INTO user_settings (user_id, email, account_public) VALUES ($1, $2, $3)",[userID, email, 'true'])
-        console.log("User settings worked")
         return userID
     }
     
     async getSettings(userID){
-        console.log("Getting setting for user id ", userID)
         return await db.query("SELECT * FROM user_settings WHERE user_id=$1",[userID])
     }
     async retrieveAvatar(url) {
@@ -59,8 +56,11 @@ class User{
             const avatarFile = await this.saveAvatar(avatar)
             await db.query("UPDATE user_settings SET avatar=$1 WHERE user_id=$2",[avatarFile,userID.toString()])
         }
-        const user = await db.query("SELECT username FROM users WHERE id=$1",[userID.toString()])
-        return Object.assign({}, this.getSettings(userID), {username: user.username})
+        const userResults = await db.query("SELECT username FROM users WHERE id=$1",[userID.toString()])
+        const user = userResults.rows[0]
+        const settingsResults = await this.getSettings(userID)
+        const settings = settingsResults.rows[0]
+        return Object.assign({}, settings ,{username: user.username})
     }
 
     async saveAvatar(filePath){
@@ -75,7 +75,6 @@ class User{
     async getUserByName(username){
         const userQuery = await db.query("SELECT users.id,username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE username=$1",[username])
         const user = userQuery.rows[0]
-        console.log(user)
         user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
         return user
     }

@@ -15,14 +15,17 @@ block content
             if settings.avatar
                 <div class="mb-3 ">
                     <label for="userimage" class="form-label">User Image</label>
-                    <img src="/avatar/#{settings.user_id}" class="img-thumbnail avatar-img">
+                    <img src="/avatar/#{settings.user_id}" class="avatar-img">
                 </div> 
                 <div class="mb-3 d-none avatar-image-upload">
                     <label for="userimage" class="form-label">User Image</label>
                     <input type="file" class="form-control" id="userimage" value="#{settings.username}" name="avatar">
                 </div>  
             else     
-                   
+                <div class="mb-3 avatar-image-upload">
+                    <label for="userimage" class="form-label">User Image</label>
+                    <input type="file" class="form-control" id="userimage" value="#{settings.username}" name="avatar">
+                </div>  
         .row
             .col-md-6
                 <div class="mb-3">
