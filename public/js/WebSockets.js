@@ -1,4 +1,4 @@
-function updateMessageNotfication(newValue){
+function updateMessageNotification(newValue){
     if(newValue === 0){
         return document.querySelector(".message-indicator").classList.add("d-none")
     }
@@ -13,33 +13,41 @@ socket.addEventListener('open', function (event) {
     socket.send("Hello World");
 });
 
-
 //Listen for messages
 socket.addEventListener('message', function (event) {
     const e = JSON.parse(event.data)
     console.log(e)
-    let a = null;
-    if(e.type === "message"){
-        a = document.createElement("a")
-        a.setAttribute("href", "/messages")
-        a.appendChild(document.createTextNode(e.message))
-        a = a.outerHTML
+    let alertOptions = {}
+    switch (e.type){
+        case "message":
+            a = document.createElement("a")
+            a.setAttribute("href", "/messages")
+            a.appendChild(document.createTextNode(e.message))
+            a = a.outerHTML
+            alertOptions = {
+                type: "text-primary",
+                message: a
+            }
+        case "comment":
+            a = document.createElement("a")
+            a.setAttribute("href", "/image/" + e.imageID)
+            a.appendChild(document.createTextNode(e.message))
+            a = a.outerHTML
+            alertOptions = {
+                type: "text-primary",
+                message: a
+            }
     }
-    console.log(a)
-    const options = {
-        type: "text-primary",
-        message: a || event.data.message
-    }
-   
-    const alert = new Alert(options)
+
+    const alert = new Alert(alertOptions)
     alert.show()
-    updateMessageNotfication(e.unreadMessages)
+    updateMessageNotification(e.unreadMessages)
     console.log('Message from server ', event.data);
 });
 
 document.addEventListener("DOMContentLoaded", function(event) {
     document.querySelector(".message-indicator").addEventListener("click", function(){
-        updateMessageNotfication(0);
+        updateMessageNotification(0);
     })
     document.querySelector(".message").addEventListener("click", function(e){
         e.target.classList.toggle(e.target.dataset.startclass)

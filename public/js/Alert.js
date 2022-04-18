@@ -41,7 +41,7 @@ class Alert{
     html(){
         return `<div class="toast ${this.type}" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">${this.headerMessage}</strong>
+            <strong class="me-auto">${this.headerMessage || ""}</strong>
             <small>${this.datetime}</small>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
