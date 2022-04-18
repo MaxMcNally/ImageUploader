@@ -6,5 +6,10 @@ require('dotenv').config()
 const db = require('better-sqlite3')(DBSOURCE, {
     verbose: console.info
 });
-
-module.exports = db
+const psql = require("./pgsql");
+console.log("PG Connected");
+console.log(psql);
+(async function(){
+    await psql.query("SELECT NOW()")
+})();
+module.exports = psql

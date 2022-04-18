@@ -1,16 +1,17 @@
 const Comment = require("./../models/Comment")
 
 class CommentController {
-    addComment(req,res) {
+    async addComment(req,res) {
         const {imageID, userID, comment} = req.body  
         const c = new Comment()
-        const result = c.addComment({
+        const result = await c.addComment({
             imageID,
             userID,
             comment
         })
-        if(result.changes === 1){
+        if(result.rows){
             req.flash("message", "Your comment was succesfully added")
+
             return res.redirect("/image/" + imageID)
         }
         else {

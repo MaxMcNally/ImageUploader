@@ -20,7 +20,7 @@ class Image {
             await storage.bucket(bucketName).upload(image, {
                 destination: destFileName,
             });
-            return this.saveFileInfo({
+            return await this.saveFileInfo({
                 userID,
                 destFileName,
                 title
@@ -31,36 +31,35 @@ class Image {
         }
     }
 
-    saveFileInfo(options){
+    async saveFileInfo(options){
         const {destFileName, userID, title} = options
-        try {
-            db.prepare("INSERT INTO images (user_id, url, title) VALUES (?, ?, ?)").run(userID, destFileName, title)
-        }
-        catch(e){
-            return e
-        }
-        return db.prepare("SELECT * FROM images WHERE url=?").get(destFileName)
+        await db.query("INSERT INTO images (user_id, url, title) VALUES ($1, $2, $3)",[userID, destFileName, title])
+        return await db.query("SELECT * FROM images WHERE url=$1",[destFileName])
     }
     
     async retrieve(imageID) {
-        const imageData = db.prepare("SELECT images.url, images.title, users.username FROM images JOIN users ON users.id=images.user_id WHERE images.id=?").get(imageID)
-        return this.retrieveByURL(imageData.url)
+        const imageData = await db.query("SELECT images.url, images.title, users.username FROM images JOIN users ON users.id=images.user_id WHERE images.id=$1",[imageID])
+        return this.retrieveByURL(imageData.rows[0].url)
     }
+
     async retrieveByURL(url){
         return await storage.bucket(bucketName).file(url).createReadStream()
     }
     delete(){
 
     }
-    getRecent(){
-        return db.prepare("SELECT images.url, images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id JOIN user_settings ON user_settings.user_id=users.id WHERE user_settings.account_public=1 ORDER BY images.created_at LIMIT 25").all()
+    async getRecent(){
+        return await db.query("SELECT DISTINCT(images.id), images.url, images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id JOIN user_settings ON user_settings.user_id=users.id WHERE user_settings.account_public=TRUE ORDER BY images.created_at LIMIT 25")
     }
-    getImagesByUser(username){
-        return db.prepare("SELECT images.url, images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id WHERE username=? ORDER BY images.created_at").all(username)
+    
+    async getImagesByUser(username){
+        return await db.query("SELECT images.url, images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id WHERE username=$1 ORDER BY images.created_at", [username])
     }
-    getImageInfo(imageID){
-        return db.prepare("SELECT images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id WHERE images.id=?").get(imageID)
+    
+    async getImageInfo(imageID){
+        return await db.query("SELECT images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id WHERE images.id=$1", [imageID])
     }
+
     //Return a new file path of the compressed image
     async compressImage(filePath){
         const newFilePath = "./compressed-images/" + "compressed-" + filePath.split(".")[1].split("/")[2] + ".webp"

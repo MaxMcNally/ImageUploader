@@ -29,11 +29,18 @@ class ImageController{
     async imagePage(req,res){
         const imageID = req.params.imageID
         const i = new Image()
-        const image = i.getImageInfo(imageID)
-        //Get Comments
-        const c = new Comment()
-        const comments = c.getComments(imageID)
-        return res.render("image", {image, comments})
+        const image = await i.getImageInfo(imageID)
+        if(image.rows.length > 0){
+            //Get Comments
+            const c = new Comment()
+            const comments = await c.getComments(imageID)
+            return res.render("image", {image:image.rows[0], comments: comments.rows})
+        }
+        else {
+            res.status(404).send("Not Found")
+        }
+
+        
     }
     async uploadImage(req,res){
         const file = req.file
@@ -48,12 +55,17 @@ class ImageController{
                 filePath: "./uploads/" + req.file.filename,
                 title
             })
-            return res.render('success',
-            {
-                "title": "Success",
-                "message" : "Your image was succesfully uploaded",
-                "imageID" : fileInfo.id
-            })
+            console.log("Uploaded file info")
+            console.log(fileInfo)
+            if(fileInfo.rows.length > 0){
+                return res.render('success',
+                {
+                    "title": "Success",
+                    "message" : "Your image was succesfully uploaded",
+                    "imageID" : fileInfo.rows[0].id
+                })
+            }
+            
         }
         catch(e) {
             console.log("Error",e)

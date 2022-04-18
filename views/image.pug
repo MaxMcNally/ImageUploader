@@ -5,7 +5,7 @@ block content
 
         if image.title
             h3.p-3 #{image.title}
-        .d-flex.justify-content-center
+        .d-flex.justify-content-center.pt-3
             
             img(src="/img/" + image.id, class="img-fluid",style="max-height: 80vh;")
         .d-flex.justify-content-center
@@ -16,6 +16,8 @@ block content
         if (session && session.isLoggedIn)
                 .pt-3
                     include includes/commentForm.pug
-        if comments    
+        if (comments.length > 0 )  
                 h3.display-5 Comments    
                 include includes/comments.pug
+        else 
+            h3.display-5 No comments yet          

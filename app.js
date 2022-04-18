@@ -35,20 +35,24 @@ const sessionParser = session(
 app.use(sessionParser);
 app.use(flash({ locals: 'flash' }));
 app.use(cookieParser());
-app.use(function(req,res,next){
+
+app.use(async function(req,res,next){
     if(req.session.username){
         res.locals.session = {
             username: req.session.username,
             isLoggedIn : req.session.isLoggedIn,
             userID : req.session.userid
         }
-        const messageCount = new Message().getUnreadMessages(req.session.userid).count
+        const messageCount = await new Message().getUnreadMessages(req.session.userid)
+        console.log("Unread messages")
+        console.log(messageCount)
         res.locals.notifications = {
-            messageCount
+            messageCount : messageCount.rows[0].count
         }
     }
     next(null, req, res);
 });
+
 app.use(function(req,res,next){
     const _render = res.render;
     res.render = function( view, options, fn ) {
@@ -65,18 +69,14 @@ app.use(function(req,res,next){
             }
             
         );
-        console.log("Rendering")
-        console.log(extendedOptions)
         _render.call( this, view, extendedOptions, fn );
     }
     next();
 });
 
-app.use((err, req, res, next) => {
-    if(err){
-        console.log("An Error Occured")
-        console.log(err)
-    }
+app.use(function (req, res, next){
+    req.messageSocketListeners = messageSocketListeners
+    next()
 })
 
 // Authentication and Authorization Middleware
@@ -102,8 +102,6 @@ const multer = require("multer");
 const db = require('./db');
 const storage = multer.diskStorage({
     destination: function(req, file, cb){
-        console.log("Uplaoding file")
-        console.log(file)
         cb(null, './uploads')
     },
     filename(req,file,cb){
@@ -141,12 +139,8 @@ app.post("/addImage", auth, upload.single('image'), ImageController.uploadImage)
 //comments
 app.post("/addComment", auth,CommentController.addComment)
 
-
 //messages
-app.post("/message", auth, function(req,res){
-    req.messageSocketListeners = messageSocketListeners
-    UserController.sendMessage(req,res)
-})
+app.post("/message", auth, UserController.sendMessage)
 app.get("/messages", auth, UserController.getMessages)
 app.post("/delete/message", auth, UserController.deleteMessage)
 //users
@@ -161,14 +155,12 @@ app.post("/settings", auth, upload.single('avatar'), UserController.postSettings
 app.get("/user/:username", UserController.getUserPage)
 const server = app.listen(3000)
 server.on('upgrade', function (request, socket, head) {
-    console.log('Parsing session from request...');
     sessionParser(request, {}, () => {
       if (!request.session.userid) {
         socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
         socket.destroy();
         return;
       }
-      console.log('Session is parsed!');
       webSocketServer.handleUpgrade(request, socket, head, function (ws) {
         webSocketServer.emit('connection', ws, request);
       });
@@ -179,12 +171,10 @@ server.on('upgrade', function (request, socket, head) {
 const webSocketServer = new WebSocketServer({ noServer:true })
 
 webSocketServer.on("connection",function(ws,req){
-    console.log("Request")
-    console.log(req.session)
+
     const userID = req.session.userid
     messageSocketListeners.set(req.session.userid,ws)
     ws.on("message",function(message){
-        console.log(`Message ${message} from ${userID}`)
     })
     ws.on('close',function(){
         messageSocketListeners.delete(userID)
