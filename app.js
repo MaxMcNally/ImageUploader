@@ -44,8 +44,6 @@ app.use(async function(req,res,next){
             userID : req.session.userid
         }
         const messageCount = await new Message().getUnreadMessages(req.session.userid)
-        console.log("Unread messages")
-        console.log(messageCount)
         res.locals.notifications = {
             messageCount : messageCount.rows[0].count
         }

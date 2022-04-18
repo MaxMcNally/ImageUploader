@@ -8,7 +8,7 @@ class UserController{
             password: req.body.password
         }
 
-            const u = await new User()
+            const u = new User()
             const results = await u.login(options)
 
             if(results.rows){
@@ -79,12 +79,12 @@ class UserController{
         const settings = await new User().getSettings(userID)
         const userSettings = settings.rows[0]
         userSettings.username = req.session.username
-        res.render("settings",{settings})
+        res.render("settings",{settings:userSettings})
     }
     async getAvatar(req,res){
         const u = new User()
-        const settings = await u.getSettings(req.params.userID)
-
+        const settingsResults = await u.getSettings(req.params.userID)
+        const settings = settingsResults.rows[0]
         if(settings.avatar){
             const i = new User()
             const stream = await u.retrieveAvatar(settings.avatar)
@@ -122,9 +122,7 @@ class UserController{
     }
     async sendMessage(req,res){
         const {from,to, message, username} = req.body
-        console.log("Sending Message to")
-        console.log(req.body)
-        console.log(req.messageSocketListeners)
+        
        
         if(from && to && message && username){
             const m = new Message()
@@ -133,8 +131,7 @@ class UserController{
                 to,
                 message
             })
-            console.log("Message ")
-            console.log(result)
+
             if(result.rowCount){
                 req.flash("message", `Your message to ${req.body.username} was succesfully sent`)
                 if(req.messageSocketListeners.get(parseInt(to))){
@@ -142,8 +139,6 @@ class UserController{
                     const ws = req.messageSocketListeners.get(parseInt(to))
                     const sender = await new User().getUserByID(from)
                     const unread = await m.getUnreadMessages(parseInt(to))
-                    console.log("unread")
-                    console.log(unread)
                     ws.send(JSON.stringify({
                         type: "message",
                         message: "You have a new message from " + sender.username,
@@ -166,9 +161,6 @@ class UserController{
         const m = new Message()
         const messages = await m.getMessages(req.session.userid)
         const unread = await m.markMessagesAsRead(req.session.userid)
-        console.log("Messages-->",req.session.userid)
-        console.log(messages)
-        console.log(unread)
         if(messages.rowCount) {
             return res.render("messages", {messages:messages.rows})
         }
@@ -178,13 +170,10 @@ class UserController{
     }
 
     async deleteMessage(req,res){
-        console.log("Deleting message", req.body,req.session.userid)
         const messageResults = await new Message().getMessageByID(req.body.messageID)
         const message = messageResults.rows[0]
         const userID = parseInt(req.session.userid)
-        console.log(message)
         const deleter = message.sender === userID ? "sender" : message.receiver === userID ? "receiver" : null
-        console.log(deleter)
         if(!deleter){
             return res.status(401).send("Not authorized to delete this message")
         }
