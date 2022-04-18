@@ -52,22 +52,18 @@ class UserController{
         {
             return res.render("register", {error: "Registration was not succesful"})
         }
-        
     }
-    
+
     async getUserPage(req,res){
         const i = new Image()
         const u = new User()
         const user = await u.getUserByName(req.params.username)
-        console.log(user)
         const username = user.username
         if(user.account_public === 0){
             return res.render("user", {account_private: true, user})
         }
         if(username) {
             const images = await i.getImagesByUser(username)
-            console.log("Images")
-            console.log(images.rows)
             return res.render("user", {images: images.rows,user})
         }
         else {
@@ -137,16 +133,21 @@ class UserController{
                 to,
                 message
             })
-            if(result.changes === 1){
+            console.log("Message ")
+            console.log(result)
+            if(result.rowCount){
                 req.flash("message", `Your message to ${req.body.username} was succesfully sent`)
                 if(req.messageSocketListeners.get(parseInt(to))){
                     //user is online so we notify them
                     const ws = req.messageSocketListeners.get(parseInt(to))
                     const sender = await new User().getUserByID(from)
+                    const unread = await m.getUnreadMessages(parseInt(to))
+                    console.log("unread")
+                    console.log(unread)
                     ws.send(JSON.stringify({
                         type: "message",
                         message: "You have a new message from " + sender.username,
-                        unreadMessages: m.getUnreadMessages(parseInt(to)).count
+                        unreadMessages: unread.rows.count
                     }))
                 }
                 res.redirect("/users/" + req.body.username)
@@ -164,9 +165,12 @@ class UserController{
     async getMessages(req,res){
         const m = new Message()
         const messages = await m.getMessages(req.session.userid)
-        await m.markMessagesAsRead(req.session.userid)
-        if(messages.length > 0) {
-            return res.render("messages", {messages})
+        const unread = await m.markMessagesAsRead(req.session.userid)
+        console.log("Messages-->",req.session.userid)
+        console.log(messages)
+        console.log(unread)
+        if(messages.rowCount) {
+            return res.render("messages", {messages:messages.rows})
         }
         else {
             return res.render("messages", {message: "You have no messages. Except for this one."})
@@ -175,7 +179,8 @@ class UserController{
 
     async deleteMessage(req,res){
         console.log("Deleting message", req.body,req.session.userid)
-        const message = await new Message().getMessageByID(req.body.messageID)
+        const messageResults = await new Message().getMessageByID(req.body.messageID)
+        const message = messageResults.rows[0]
         const userID = parseInt(req.session.userid)
         console.log(message)
         const deleter = message.sender === userID ? "sender" : message.receiver === userID ? "receiver" : null

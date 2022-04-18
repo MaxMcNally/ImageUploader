@@ -11,6 +11,7 @@ class CommentController {
         })
         if(result.rows){
             req.flash("message", "Your comment was succesfully added")
+
             return res.redirect("/image/" + imageID)
         }
         else {

@@ -11,7 +11,7 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-light
         if (session && session.isLoggedIn)
           li.nav-item.position-relative
             a.nav-link.position-relative(href='/messages') Messages 
-                  if (notifications && notifications.messageCount)
+                  if (notifications && notifications.messageCount > 0)
                     <i class="fa-regular fa-message position-relative icon-small"></i>
                     <p class="position-absolute message-indicator d-none d-md-flex">#{notifications.messageCount}</p>
         
