@@ -59,6 +59,9 @@ class Image {
     async getImageInfo(imageID){
         return await db.query("SELECT images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id WHERE images.id=$1", [imageID])
     }
+    async getImageUploader(imageID){
+        return await db.query("SELECT users.id, users.username FROM images JOIN users ON users.id=images.user_id WHERE images.id=$1", [imageID])
+    }
 
     //Return a new file path of the compressed image
     async compressImage(filePath){
