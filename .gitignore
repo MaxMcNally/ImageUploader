@@ -10,3 +10,4 @@ docker-compose.yaml
 .dockerignore
 api_key.json
 db_schema.txt
+*.pem
