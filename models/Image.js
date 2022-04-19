@@ -3,10 +3,7 @@ const db = require("./../db")
 require('dotenv').config()
 const { v4: uuidv4 } = require('uuid');
 const storage = new Storage(
-    {
-        keyFilename: "./" + process.env.GOOGLE_APPLICATION_CREDENTIALS,
-        projectId: process.env.GOOGLE_PROJECT_ID
-    });
+storage = new Storage(); 
 const bucketName = process.env.GOOGLE_IMAGE_BUCKET;
 const sharp = require('sharp');
 
