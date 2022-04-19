@@ -2,7 +2,6 @@ const {Storage} = require('@google-cloud/storage');
 const db = require("./../db")
 require('dotenv').config()
 const { v4: uuidv4 } = require('uuid');
-const storage = new Storage(
 storage = new Storage(); 
 const bucketName = process.env.GOOGLE_IMAGE_BUCKET;
 const sharp = require('sharp');
