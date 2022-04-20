@@ -5,6 +5,7 @@ class HomeController {
         const i = new Image()
         const files = await i.getRecent()
         if(files.rows){
+            console.log(files.rows)
             res.render('index', {
                 images : files.rows
             })

@@ -28,7 +28,7 @@ socket.addEventListener('message', function (event) {
                 type: "text-primary",
                 message: a
             }
-        case "comment":
+        case "comment": case "like":
             a = document.createElement("a")
             a.setAttribute("href", "/image/" + e.imageID)
             a.appendChild(document.createTextNode(e.message))
@@ -38,10 +38,12 @@ socket.addEventListener('message', function (event) {
                 message: a
             }
     }
-
     const alert = new Alert(alertOptions)
     alert.show()
-    updateMessageNotification(e.unreadMessages)
+    if(e.unreadMessages){
+        updateMessageNotification(e.unreadMessages)
+    }
+    
     console.log('Message from server ', event.data);
 });
 
@@ -49,14 +51,4 @@ document.addEventListener("DOMContentLoaded", function(event) {
     document.querySelector(".message-indicator").addEventListener("click", function(){
         updateMessageNotification(0);
     })
-
-    const message = document.querySelector(".message")
-    if(message){
-        message.addEventListener("click", function(e){
-            e.target.classList.toggle(e.target.dataset.startclass)
-            e.target.classList.toggle(e.target.dataset.toggleclass)
-            document.querySelector(e.target.dataset.target).classList.toggle("show")
-        })
-    }
-    
 });

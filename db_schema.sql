@@ -40,3 +40,26 @@ CREATE TABLE messages (
     deleted_by_sender INTEGER DEFAULT 0,
     deleted_by_receiver INTEGER DEFAULT 0
 );
+
+
+CREATE TABLE likes (
+    id SERIAL PRIMARY KEY,
+    image_id INTEGER references images(id),
+    liked_by INTEGER references users(id),
+    liked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE followers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    followed_by INTEGER REFERENCES users(id),
+    followed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+    type SMALLINT NOT NULL,
+    unread BOOLEAN DEFAULT TRUE,
+    "from" INTEGER REFERENCES users(id),
+    "on" INTEGER REFERENCES images(id)
+);

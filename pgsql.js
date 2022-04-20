@@ -24,12 +24,8 @@ if(process.env.NODE_ENV==="PRODUCTION"){
     },
   }
 }
-console.log(config)
 const pool = new Pool(config)
 console.log(pool)
-pool.query("SELECT * FROM users").then((result)=>{
-    console.log(result.rows)
-})
 module.exports = {
   query: (text, params, callback) => {
     try {

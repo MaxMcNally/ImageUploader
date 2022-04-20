@@ -45,7 +45,23 @@ class Image {
 
     }
     async getRecent(){
-        return await db.query("SELECT DISTINCT(images.id), images.url, images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id JOIN user_settings ON user_settings.user_id=users.id WHERE user_settings.account_public=TRUE ORDER BY images.created_at LIMIT 25")
+        return await db.query(
+            `SELECT DISTINCT(images.id),
+            images.url, 
+            images.title, 
+            users.username, 
+            images.created_at, 
+            images.id,
+            (SELECT COUNT(*) FROM likes WHERE likes.image_id = images.id) AS likes
+            FROM images
+            JOIN users 
+                ON users.id=images.user_id 
+            JOIN user_settings 
+                ON user_settings.user_id=users.id 
+            
+            WHERE user_settings.account_public=TRUE 
+            ORDER BY images.created_at 
+            LIMIT 25`)
     }
     
     async getImagesByUser(username){
@@ -53,7 +69,15 @@ class Image {
     }
     
     async getImageInfo(imageID){
-        return await db.query("SELECT images.title, users.username, images.created_at, images.id FROM images JOIN users ON users.id=images.user_id WHERE images.id=$1", [imageID])
+        return await db.query(`
+            SELECT  images.title, 
+                    users.username, 
+                    images.created_at, 
+                    images.id,
+                    (SELECT COUNT(*) FROM likes WHERE likes.image_id = images.id) AS likes
+            FROM images 
+            JOIN users ON users.id=images.user_id 
+            WHERE images.id=$1`, [imageID])
     }
     async getImageUploader(imageID){
         return await db.query("SELECT users.id, users.username FROM images JOIN users ON users.id=images.user_id WHERE images.id=$1", [imageID])

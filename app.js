@@ -1,6 +1,7 @@
 //app
 const express = require('express');
 const app = express();
+const compression = require('compression')
 const { WebSocketServer } = require("ws")
 const messageSocketListeners = new Map()
 //models
@@ -16,7 +17,9 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config()
 app.set('view engine', 'pug')
 app.use(express.static('public'))
+app.use(compression())
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 const sessionParser = session(
     {
         store: new SqliteStore({
@@ -91,7 +94,8 @@ const ImageController = require("./controllers/ImageController")
 const UserController = require("./controllers/UserController")
 const HomeController = require("./controllers/HomeController")
 const CommentController = require("./controllers/CommentController")
-
+const FollowController = require("./controllers/FollowController")
+const LikeController = require("./controllers/LikeController")
 //includes
 const path = require('path');
 
@@ -141,6 +145,15 @@ app.post("/addComment", auth,CommentController.addComment)
 app.post("/message", auth, UserController.sendMessage)
 app.get("/messages", auth, UserController.getMessages)
 app.post("/delete/message", auth, UserController.deleteMessage)
+
+//follow
+app.post("/follow/:userID", auth, FollowController.follow)
+app.post("/unfollow/:userID", auth, FollowController.unfollow)
+//like
+app.post("/like", auth, LikeController.like)
+app.post("/unlike", auth, LikeController.unlike)
+
+
 //users
 app.get("/users/:username", UserController.getUserPage)  
 app.get("/register", (req,res)=> res.render("register"))

@@ -7,7 +7,7 @@ block content
             h3.p-3 #{image.title}
         .d-flex.justify-content-center.pt-3
             
-            img(src="/img/" + image.id, class="img-fluid",style="max-height: 80vh;")
+            img(src="/img/" + image.id, class="img-fluid shareable likeable",style="max-height: 80vh;")
         .d-flex.justify-content-center
             p Uploaded by 
                 a(href="/user/" + image.username) #{image.username}
