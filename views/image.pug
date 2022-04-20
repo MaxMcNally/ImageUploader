@@ -6,8 +6,9 @@ block content
         if image.title
             h3.p-3 #{image.title}
         .d-flex.justify-content-center.pt-3
-            
-            img(src="/img/" + image.id, class="img-fluid shareable likeable",style="max-height: 80vh;")
+            - var img = image
+            - var imgClass = "max-height-80"
+            include includes/likeableImage.pug
         .d-flex.justify-content-center
             p Uploaded by 
                 a(href="/user/" + image.username) #{image.username}

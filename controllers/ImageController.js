@@ -30,6 +30,7 @@ class ImageController{
         const imageID = req.params.imageID
         const i = new Image()
         const image = await i.getImageInfo(imageID)
+        console.log(image)
         if(image.rows.length > 0){
             //Get Comments
             const c = new Comment()

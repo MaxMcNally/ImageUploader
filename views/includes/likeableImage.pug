@@ -2,6 +2,6 @@ if (session && session.isLoggedIn)
     - var liked = parseInt(img.likes) > 0 ? "liked" : ""
     - var likes = parseInt(img.likes) > 0 ? img.likes : ""
     a(href="/image/" + img.id, class="position-relative d-block likeable")
-        img(class="figure-img img-fluid rounded shareable" src="/img/" + img.id loading="lazy")
+        img(class="figure-img img-fluid rounded shareable image " + imgClass  src="/img/" + img.id loading="lazy")
         i(class="fa-regular fa-heart icon-large position-absolute top-0 translate-middle-x like  " + liked, data-imageid=img.id)
         span.like-count.position-absolute.translate-middle-x(style="z-index:99999;color:white;font-weight:bold;top:10px") #{likes}

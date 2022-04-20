@@ -117,3 +117,12 @@
   bottom:5px;
   right:0px;
 }
+
+.max-height-80 {
+  max-height: 80vh;
+}
+
+.toast-container {
+  position: relative;
+  z-index: 9999;
+}

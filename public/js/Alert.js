@@ -13,6 +13,7 @@ class Alert{
         toastContainer.append(template)
         this.toast = new bootstrap.Toast(document.getElementById(this.id).querySelector('.toast'),{autohide:autohide})
     }
+    
     getToastContainer(){
         if(document.getElementById("toastContainer")){
             return document.getElementById("toastContainer")
@@ -28,6 +29,7 @@ class Alert{
             return document.getElementById("toastContainer")
         }
     }
+    
     show(){
         this.toast.show()
     }
