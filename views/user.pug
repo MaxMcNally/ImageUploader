@@ -12,7 +12,16 @@ block content
             h3.pt-3.pb-1.display-4 #{user.username}
             p member since #{user.created_at}
             if (session.userID !== user.id)
-                button.btn.btn-outline-primary.btn-sm.col-md-4.mb-2 Follow 
+                if(isFollowing)
+                    form(action="/unfollow", method="post" id="followForm")
+                        input(type="hidden" value=user.id name="userid")
+                        input(type="hidden" value=user.username name="username")
+                        input.btn.btn-outline-primary.btn-sm.col-md-4.mb-2(type="submit" value="Unfollow")
+                else 
+                    form(action="/follow", method="post" id="followForm")
+                        input(type="hidden" value=user.id name="userid")
+                        input(type="hidden" value=user.username name="username")
+                        input.btn.btn-outline-primary.btn-sm.col-md-4.mb-2(type="submit" value="Follow")
                 button.btn.btn-outline-primary.btn-sm.col-md-4.mb-4.toggle(data-target="#messageForm") Message
                 form(action="/message" method="post" id="messageForm")
                     div(class="mb-3")

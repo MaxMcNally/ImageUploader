@@ -17,26 +17,30 @@ socket.addEventListener('open', function (event) {
 socket.addEventListener('message', function (event) {
     const e = JSON.parse(event.data)
     console.log(e)
-    let alertOptions = {}
+    let alertOptions = {
+        type: "text-primary"
+    }
     switch (e.type){
         case "message":
             a = document.createElement("a")
             a.setAttribute("href", "/messages")
             a.appendChild(document.createTextNode(e.message))
             a = a.outerHTML
-            alertOptions = {
-                type: "text-primary",
-                message: a
-            }
-        case "comment":
+            alertOptions.message = a
+            
+        case "comment": case "follower_post":
             a = document.createElement("a")
             a.setAttribute("href", "/image/" + e.imageID)
             a.appendChild(document.createTextNode(e.message))
             a = a.outerHTML
-            alertOptions = {
-                type: "text-primary",
-                message: a
-            }
+            alertOptions.message = a
+            
+        case "follower":
+            a = document.createElement("a")
+            a.setAttribute("href", "/users/" + e.username)
+            a.appendChild(document.createTextNode(e.message))
+            a = a.outerHTML
+            alertOptions.message = a
     }
 
     const alert = new Alert(alertOptions)

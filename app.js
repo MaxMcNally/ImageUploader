@@ -91,7 +91,7 @@ const ImageController = require("./controllers/ImageController")
 const UserController = require("./controllers/UserController")
 const HomeController = require("./controllers/HomeController")
 const CommentController = require("./controllers/CommentController")
-
+const FollowerController = require("./controllers/FollowerController")
 //includes
 const path = require('path');
 
@@ -141,6 +141,11 @@ app.post("/addComment", auth,CommentController.addComment)
 app.post("/message", auth, UserController.sendMessage)
 app.get("/messages", auth, UserController.getMessages)
 app.post("/delete/message", auth, UserController.deleteMessage)
+
+//follow
+app.post("/follow", FollowerController.follow)
+app.post("/unfollow", FollowerController.unfollow)
+
 //users
 app.get("/users/:username", UserController.getUserPage)  
 app.get("/register", (req,res)=> res.render("register"))
