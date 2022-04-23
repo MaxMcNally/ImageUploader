@@ -1,6 +1,7 @@
 const Image = require("../models/Image")
 const User = require("../models/User")
 const Message = require("../models/Message")
+const Follow = require("../models/Follow")
 class UserController{
     async login(req,res){
         const options = {
@@ -64,7 +65,17 @@ class UserController{
         }
         if(username) {
             const images = await i.getImagesByUser(username)
-            return res.render("user", {images: images.rows,user})
+            const isFollowingResult = await new Follow().isFollowing({
+                followerID : req.session.userid, 
+                followID: user.id
+            })
+            let isFollowing = false
+            console.log("Following result")
+            console.log(isFollowingResult)
+            if(isFollowingResult.rows[0] && isFollowingResult.rows[0].count > 0){
+                isFollowing = true
+            }
+            return res.render("user", {images: images.rows,user, isFollowing})
         }
         else {
             return res.send(404)

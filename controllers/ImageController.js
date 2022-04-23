@@ -1,6 +1,7 @@
 const Image = require("../models/Image")
 const Comment = require("../models/Comment");
 const User = require("../models/User");
+const Follow = require("../models/Follow");
 
 class ImageController{
     async getImage(req,res){
@@ -56,6 +57,20 @@ class ImageController{
                 title
             })
             if(fileInfo.rows.length > 0){
+                //notify followers
+                const followerResponse = await new Follow().getFollowers(req.session.userid)
+                console.log(followerResponse)
+                for(let follower of followerResponse.rows){
+                    const ws = req.messageSocketListeners.get(follower.id)
+                    if(ws){
+                        ws.send(JSON.stringify({
+                            type: "follower_post",
+                            message: req.session.username + " just added a new image",
+                            imageID: fileInfo.rows[0].id
+                        }))
+                    }
+                    console.log("Notifying",follower)
+                }
                 return res.render('success',
                 {
                     "title": "Success",
