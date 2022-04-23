@@ -1,8 +1,11 @@
 function updateMessageNotification(newValue){
-    if(newValue === 0){
-        return document.querySelector(".message-indicator").classList.add("d-none")
+    if(document.querySelector(".message-indicator")) {
+        if(newValue === 0){
+            return document.querySelector(".message-indicator").classList.add("d-none")
+        }
+        document.querySelector(".message-indicator").innerHTML = newValue
     }
-    document.querySelector(".message-indicator").innerHTML = newValue
+   
 }
 
 //Setup web socket connection for messaging
@@ -28,7 +31,7 @@ socket.addEventListener('message', function (event) {
             a = a.outerHTML
             alertOptions.message = a
             
-        case "comment": case "follower_post":
+        case "comment":
             a = document.createElement("a")
             a.setAttribute("href", "/image/" + e.imageID)
             a.appendChild(document.createTextNode(e.message))
@@ -41,6 +44,13 @@ socket.addEventListener('message', function (event) {
             a.appendChild(document.createTextNode(e.message))
             a = a.outerHTML
             alertOptions.message = a
+        
+        case "follower_post":
+                a = document.createElement("a")
+                a.setAttribute("href", "/image/" + e.imageID)
+                a.appendChild(document.createTextNode(e.message))
+                a = a.outerHTML
+                alertOptions.message = a    
     }
 
     const alert = new Alert(alertOptions)
