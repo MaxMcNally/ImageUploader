@@ -2,6 +2,8 @@ const Image = require("../models/Image")
 const User = require("../models/User")
 const Message = require("../models/Message")
 const Follow = require("../models/Follow")
+const Notification = require("../models/Notification")
+
 class UserController{
     async login(req,res){
         const options = {
@@ -194,6 +196,16 @@ class UserController{
         })
         req.flash("message","Succesfully deleted message")
         res.redirect("/messages")
+    }
+    async clearNotifications(req,res){
+        const result = await new Notification().clearNotifications(req.session.userid)
+        if(result.rowCount > 0){
+            res.status(200).send("ok")
+        }
+        else {
+            res.status(500).send("Something went wrong")
+        }
+        
     }
     
 }

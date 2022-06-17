@@ -1,5 +1,5 @@
 const Follow = require('./../models/Follow')
-
+const Notification = require('./../models/Notification')
 class FollowerController{
     async follow(req, res){
         if(req.body.userid && req.session.userid){
@@ -15,6 +15,11 @@ class FollowerController{
                         username: req.session.username
                     }))
                 }
+                await new Notification().addNotification({
+                    userID: parseInt(req.body.userid),
+                    type: 1,
+                    from: req.session.userid
+                })
                 req.flash("message", "You are now following " + req.body.username)
                 res.redirect("/users/" + req.body.username)
             }

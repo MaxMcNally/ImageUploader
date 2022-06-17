@@ -1,10 +1,16 @@
 //app
 const express = require('express');
 const app = express();
+const compression = require('compression')
+
 const { WebSocketServer } = require("ws")
 const messageSocketListeners = new Map()
+
 //models
 const Message = require("./models/Message")
+const Notification = require("./models/Notification")
+
+
 
 const bodyParser = require('body-parser');
 const flash = require('req-flash');
@@ -15,6 +21,7 @@ const sessionDB = new sqlite("./db/sessions.db");
 const cookieParser = require('cookie-parser');
 require('dotenv').config()
 app.set('view engine', 'pug')
+app.use(compression())
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: true }));
 const sessionParser = session(
@@ -44,8 +51,24 @@ app.use(async function(req,res,next){
             userID : req.session.userid
         }
         const messageCount = await new Message().getUnreadMessages(req.session.userid)
+        const notificationsResult = await new Notification().getNotifications({
+            userID: req.session.userid,
+            limit: 25
+        })
+        const unreadNotifications = await new Notification().unreadCount(req.session.userid)
+        console.log("Notifications")
+        const notes = []
+        const n = new Notification()
+        for(let row of notificationsResult.rows){
+            console.log(row)
+            notes.push(await n.translateNotification(row))
+        }
+        console.log(notes)
         res.locals.notifications = {
-            messageCount : messageCount.rows[0].count
+            messageCount : messageCount.rows[0].count,
+            unreadNotifications : unreadNotifications.rows[0] ? unreadNotifications.rows[0].count : null,
+            notes : notes
+
         }
     }
     next(null, req, res);
@@ -143,8 +166,10 @@ app.get("/messages", auth, UserController.getMessages)
 app.post("/delete/message", auth, UserController.deleteMessage)
 
 //follow
-app.post("/follow", FollowerController.follow)
-app.post("/unfollow", FollowerController.unfollow)
+app.post("/follow",auth, FollowerController.follow)
+app.post("/unfollow",auth, FollowerController.unfollow)
+
+app.post("/clearNotifications", auth, UserController.clearNotifications)
 
 //users
 app.get("/users/:username", UserController.getUserPage)  

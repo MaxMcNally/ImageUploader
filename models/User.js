@@ -69,12 +69,14 @@ class User{
     async getUserByName(username){
         const userQuery = await db.query("SELECT users.id,username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE username=$1",[username])
         const user = userQuery.rows[0]
+        console.log(user)
         user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
         return user
     }
     async getUserByID(userID){
         const userQuery = await db.query("SELECT username,avatar,account_public, users.created_at FROM users JOIN user_settings ON users.id=user_settings.user_id WHERE users.id=$1",[userID])
         const user = userQuery.rows[0] 
+        console.log(user)
         user.created_at = dateFormat('MM/dd/yyyy', new Date(user.created_at))
         return user
     }

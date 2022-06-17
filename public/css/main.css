@@ -117,3 +117,10 @@
   bottom:5px;
   right:0px;
 }
+
+.notification-indicator {
+  width:25px;
+}
+.notification-indicator i {
+  align-self: center;
+}

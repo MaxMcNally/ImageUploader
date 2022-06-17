@@ -15,6 +15,21 @@ nav.navbar.navbar-expand-lg.navbar-light.bg-light
                     <i class="fa-regular fa-message position-relative icon-small"></i>
                     <p class="position-absolute message-indicator d-none d-md-flex">#{notifications.messageCount}</p>
         
+                      
+        if (notifications && notifications.notes.length > 0)
+          ul.navbar-nav.ms-auto
+            li.nav-item.dropdown
+              a.nav-link.dropdown-toggle(id='notificationsMenu', data-bs-toggle='dropdown', aria-haspopup='true', aria-expanded='false') Notifications
+              
+              .dropdown-menu(aria-labelledby='notificationsMenu')
+                each note of notifications.notes
+                  a.dropdown-item.notification(href=note.link) #{note.message}
+          
+            li.nav-item.position-relative.notification-indicator.d-flex
+              i.fa-regular.fa-bell.position-relative.icon-small
+              if (notifications && notifications.unreadNotifications > 0)
+                p.position-absolute.message-indicator.d-none.d-md-flex #{notifications.unreadNotifications}
+        
       if (session && session.isLoggedIn)
         ul.navbar-nav.ms-auto
           li.nav-item.dropdown
